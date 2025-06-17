@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // hoặc "mysql", "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  password      String
+  name          String?
+  role          Role            @default(CUSTOMER)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  orders        Order[]
+  refreshTokens RefreshToken[]
+  cart          Cart?
+
+  @@index([email])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model Product {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String
+  imageUrl    String
+  weight      Float?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  categoryId  Int?
+  category    Category?        @relation(fields: [categoryId], references: [id])
+  brandId     Int?
+  brand       Brand?           @relation(fields: [brandId], references: [id])
+  variants    ProductVariant[]
+  discounts   Discount[]
+  sizes       Size[]           @relation("ProductToSize")
+  colors      Color[]          @relation("ProductToColor")
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([createdAt])
+  @@index([isActive])
+}
+
+model ProductVariant {
+  id         Int         @id @default(autoincrement())
+  sku        String      @unique
+  price      Float
+  stock      Int
+  isActive   Boolean     @default(true)
+  productId  Int
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId    Int?
+  color      Color?      @relation(fields: [colorId], references: [id])
+  sizeId     Int?
+  size       Size?       @relation(fields: [sizeId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([colorId, sizeId])
+  @@index([sku])
+}
+
+model CartItem {
+  id               Int            @id @default(autoincrement())
+  quantity         Int
+  price            Float
+  cartId           Int
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariantId Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  @@unique([cartId, productVariantId])
+}
+
+model OrderItem {
+  id               Int            @id @default(autoincrement())
+  quantity         Int
+  price            Float
+  orderId          Int
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariantId Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  isActive Boolean   @default(true)
+  products Product[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  isActive Boolean   @default(true)
+  products Product[]
+}
+
+model Color {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  hexCode         String?
+  products        Product[]        @relation("ProductToColor")
+  productVariants ProductVariant[]
+}
+
+model Size {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  products        Product[]        @relation("ProductToSize")
+  productVariants ProductVariant[]
+}
+
+model Discount {
+  id           Int          @id @default(autoincrement())
+  code         String       @unique
+  description  String?
+  discountType DiscountType
+  value        Float
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean      @default(true)
+  maxUses      Int?
+  currentUses  Int          @default(0)
+  products     Product[]
+  orders       Order[]
+
+  @@index([code])
+  @@index([isActive, startDate, endDate])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  orderNumber     String      @unique @default(cuid())
+  status          OrderStatus @default(PENDING)
+  shippingAddress String?
+  phoneNumber     String?
+  customerName    String?
+  totalPrice      Float
+  shippingFee     Float       @default(0)
+  discountAmount  Float       @default(0)
+  discountId      Int?
+  discount        Discount?   @relation(fields: [discountId], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  orderItems      OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([orderNumber])
+}

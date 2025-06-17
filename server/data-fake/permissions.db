@@ -1,0 +1,16 @@
+{"name":"user:update:all","description":"Update any user data","resource":"user","action":"update","category":"all","createdAt":{"$$date":1749613875058},"updatedAt":{"$$date":1749613875058},"_id":"2CE8NnEZCuKWIArr"}
+{"name":"content:read:all","description":"Read all content","resource":"content","action":"read","category":"all","createdAt":{"$$date":1749613875063},"updatedAt":{"$$date":1749613875063},"_id":"46aW2IzbLym7ct1H"}
+{"name":"role:read:all","description":"Read all roles","resource":"role","action":"read","category":"all","createdAt":{"$$date":1749613875060},"updatedAt":{"$$date":1749613875060},"_id":"4KbDoOkH7IaD9EVZ"}
+{"name":"user:delete:all","description":"Delete any user","resource":"user","action":"delete","category":"all","createdAt":{"$$date":1749613875059},"updatedAt":{"$$date":1749613875059},"_id":"5A9gjEFPViy9O7H6"}
+{"name":"system:admin:all","description":"Full system administration","resource":"system","action":"admin","category":"all","createdAt":{"$$date":1749613875064},"updatedAt":{"$$date":1749613875064},"_id":"AFsU683sL5dn38II"}
+{"name":"role:create:all","description":"Create new roles","resource":"role","action":"create","category":"all","createdAt":{"$$date":1749613875061},"updatedAt":{"$$date":1749613875061},"_id":"HpGirzfbbW7l4CfG"}
+{"name":"user:delete:own","description":"Delete own user data","resource":"user","action":"delete","category":"self","createdAt":{"$$date":1749613875053},"updatedAt":{"$$date":1749613875053},"_id":"SNSA9FNyeFAlWEXt"}
+{"name":"content:moderate:all","description":"Moderate content","resource":"content","action":"moderate","category":"all","createdAt":{"$$date":1749613875063},"updatedAt":{"$$date":1749613875063},"_id":"UcH1NHaZdyoFjYjx"}
+{"name":"role:delete:all","description":"Delete roles","resource":"role","action":"delete","category":"all","createdAt":{"$$date":1749613875062},"updatedAt":{"$$date":1749613875062},"_id":"Vxs672fTbNI0LXVw"}
+{"name":"user:read:own","description":"Read own user data","resource":"user","action":"read","category":"self","createdAt":{"$$date":1749613874971},"updatedAt":{"$$date":1749613874971},"_id":"hg9szjAYUTOOhWVp"}
+{"name":"user:create:all","description":"Create new users","resource":"user","action":"create","category":"all","createdAt":{"$$date":1749613875057},"updatedAt":{"$$date":1749613875057},"_id":"k9F90H8utO9JKqA4"}
+{"name":"user:read:all","description":"Read all users data","resource":"user","action":"read","category":"all","createdAt":{"$$date":1749613875056},"updatedAt":{"$$date":1749613875056},"_id":"mdlLSV6s5xNjLWP6"}
+{"name":"role:update:all","description":"Update roles","resource":"role","action":"update","category":"all","createdAt":{"$$date":1749613875061},"updatedAt":{"$$date":1749613875061},"_id":"tyOdaQG6QM2NUmFk"}
+{"name":"user:update:own","description":"Update own user data","resource":"user","action":"update","category":"self","createdAt":{"$$date":1749613874974},"updatedAt":{"$$date":1749613874974},"_id":"zD9iFMlFn33fMHKd"}
+{"$$indexCreated":{"fieldName":"name","unique":true,"sparse":false}}
+{"$$indexCreated":{"fieldName":"resource","unique":false,"sparse":false}}
