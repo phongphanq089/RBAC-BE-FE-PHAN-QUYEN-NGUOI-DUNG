@@ -1,6 +1,5 @@
-{"username":"super_admin","email":"super_admin@gmail.com","password":"$2b$12$tAp8Xk54s5U5jkhlbDblmONm7uyArNOIM/ELVF0CeKWRHDOUOzjvq","role":"super_admin","isActive":true,"metadata":{},"createdAt":{"$$date":1750132364212},"updatedAt":{"$$date":1750132383542},"_id":"fZp92gN7IuHuyJ89","lastLogin":{"$$date":1750132383542}}
+{"username":"super_admin","email":"super_admin@gmail.com","password":"$2b$12$tAp8Xk54s5U5jkhlbDblmONm7uyArNOIM/ELVF0CeKWRHDOUOzjvq","role":"super_admin","isActive":true,"metadata":{},"createdAt":{"$$date":1750132364212},"updatedAt":{"$$date":1750295802305},"_id":"fZp92gN7IuHuyJ89","lastLogin":{"$$date":1750295802305}}
 {"username":"admin","email":"admin@gmail.com","password":"$2b$12$Oe/uthAYkcm54YOPwmPwtuEsEgcvwcxn8AOf3RRKS4GMbgMFoMj.C","role":"admin","isActive":true,"metadata":{},"createdAt":{"$$date":1750055586282},"updatedAt":{"$$date":1750132122497},"_id":"zuctBYvkea2vwsxR","lastLogin":{"$$date":1750132122497}}
 {"$$indexCreated":{"fieldName":"email","unique":true,"sparse":false}}
 {"$$indexCreated":{"fieldName":"username","unique":true,"sparse":false}}
 {"$$indexCreated":{"fieldName":"role","unique":false,"sparse":false}}
-{"$$indexCreated":{"fieldName":"email","unique":true}}

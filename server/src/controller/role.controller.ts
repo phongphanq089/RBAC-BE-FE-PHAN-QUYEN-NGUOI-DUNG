@@ -50,6 +50,9 @@ export const updateRoleController = async (
   reply: FastifyReply
 ) => {
   const { name } = request.params as any
+  if (!request.body || Object.keys(request.body).length === 0) {
+    throw new AppError('Data validation failed', 400)
+  }
   const updated = await Role.updateRole(name, request.body as any)
 
   if (updated === 0) {
@@ -108,5 +111,19 @@ export const addRolePermissons = async (
   reply.send({
     success: true,
     message: 'Permission added to role successfully',
+  })
+}
+
+export const deletePermissionFromRoleController = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  const { name, permission } = request.params as any
+
+  await Role.removePermissionFromRole(name, permission)
+
+  return reply.send({
+    success: true,
+    message: 'Permission removed from role successfully',
   })
 }

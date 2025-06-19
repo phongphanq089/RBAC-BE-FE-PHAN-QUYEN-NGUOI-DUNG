@@ -1,6 +1,7 @@
 import {
   addRolePermissons,
   createNewRoleController,
+  deletePermissionFromRoleController,
   deleteRoleController,
   getRoleByNameController,
   getRolePermissions,
@@ -64,5 +65,13 @@ export const roleRoutes = (server: FastifyInstance) => {
       preHandler: [authenticate, authorize(['role:update:all'])],
     },
     addRolePermissons
+  )
+  // delete permission from role
+  server.delete(
+    '/:name/permissions/:permission',
+    {
+      preHandler: [authenticate, authorize(['role:update:all'])],
+    },
+    deletePermissionFromRoleController
   )
 }

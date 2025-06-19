@@ -9,6 +9,7 @@ import { zodErrorHandlerPlugin } from './middleware/zodErrorHandlerPlugin'
 import { authenticate } from './middleware/authMiddleware'
 import fastify from 'fastify'
 import { roleRoutes } from './routes/role.route'
+import { permissionRoutes } from './routes/permisson.route'
 
 const app = fastify({
   logger: config.isDevelopment,
@@ -26,6 +27,12 @@ async function registerRoutes() {
       roleRoutes(fastify)
     },
     { prefix: '/api/role' }
+  )
+  await app.register(
+    async function (fastify) {
+      permissionRoutes(fastify)
+    },
+    { prefix: '/api/permission' }
   )
 }
 

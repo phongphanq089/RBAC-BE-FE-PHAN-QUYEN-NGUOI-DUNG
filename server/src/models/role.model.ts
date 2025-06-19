@@ -72,8 +72,9 @@ export class Role {
 
     const updateFields = {
       ...otherData,
-      ...(permissions.length > 0 && { permissions }),
+      ...(permissions.length > 0 && {}),
       updatedAt: new Date(),
+      permissions,
     }
 
     return await database.roles.update(
