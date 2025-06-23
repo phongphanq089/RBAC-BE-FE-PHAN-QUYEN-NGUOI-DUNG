@@ -1,7 +1,12 @@
 import { Role } from '@/models/role.model'
 import { User } from '@/models/user.model'
 import { JWTPayload } from '@/types'
-import { AppError, ForbiddenError, UnauthorizedError } from '@/utils/errors'
+import {
+  AppError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from '@/utils/errors'
 import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify'
 
 declare module 'fastify' {
@@ -170,5 +175,56 @@ export const forbidSelfDelete = async (
 
   if (request.currentUser._id === id) {
     throw new AppError('You can not delete yourseft', 403)
+  }
+}
+
+// middle này có tác dụng ngăn việc xoá chính bản thân tránh mất mát dữ liệu , không có quyền chỉnh sửa hoặc gán  người có vai trò cao hơn vai trò của mình.
+export async function forbidRoleChange(
+  request: FastifyRequest<AuthRequest>,
+  reply: FastifyReply
+) {
+  const { id } = request.params as { id: string }
+  const body = request.body as { role?: string }
+
+  const currentUser = request.currentUser
+  const targetUser = await User.findById(id)
+  if (!targetUser) {
+    throw new NotFoundError('Người dùng không tồn tại')
+  }
+
+  const currentRole = await Role.findByName(currentUser.role)
+  const targetRole = await Role.findByName(targetUser.role)
+
+  if (!currentRole || !targetRole) {
+    throw new AppError('Không tìm thấy thông tin vai trò', 400)
+  }
+
+  // ❌ Không cho sửa chính mình
+  if (currentUser._id === targetUser._id) {
+    throw new ForbiddenError(
+      'Không thể cập nhật thông tin của chính bạn tại đây'
+    )
+  }
+
+  // ❌ Nếu vai trò hiện tại có priority thấp hơn người bị sửa => cấm
+  if (currentRole.priority < targetRole.priority) {
+    throw new ForbiddenError(
+      `Bạn không có quyền chỉnh sửa người có vai trò cao hơn (${targetUser.role})`
+    )
+  }
+
+  // ❌ Nếu đang muốn đổi sang role khác
+  if (body.role && body.role !== targetUser.role) {
+    const newRole = await Role.findByName(body.role)
+    if (!newRole) {
+      throw new AppError(`Vai trò '${body.role}' không tồn tại`, 400)
+    }
+
+    // ❌ Nếu role mới có priority cao hơn người gửi request => cấm
+    if (newRole.priority > currentRole.priority) {
+      throw new ForbiddenError(
+        `Bạn không thể gán vai trò '${body.role}' có cấp cao hơn vai trò hiện tại`
+      )
+    }
   }
 }

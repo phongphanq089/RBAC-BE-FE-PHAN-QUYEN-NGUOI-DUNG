@@ -5,11 +5,13 @@ import { api } from '~/lib/axios'
 
 import { persist } from 'zustand/middleware'
 import type { AppState, AuthState } from '~/types'
+import { toast } from 'react-toastify'
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      userProfile: null,
       token: null,
       isAuthenticated: false,
       login: async (email: string, password: string) => {
@@ -19,7 +21,7 @@ export const useAuthStore = create<AuthState>()(
 
           set({ user, token, isAuthenticated: true })
         } catch (error: any) {
-          throw new Error(error.response?.data?.error || 'Login failed')
+          toast.error(error.response?.data?.message || 'ERROR')
         }
       },
       register: async (userData: any) => {
@@ -29,12 +31,22 @@ export const useAuthStore = create<AuthState>()(
 
           set({ user, token, isAuthenticated: true })
         } catch (error: any) {
-          throw new Error(error.response?.data?.error || 'Registration failed')
+          toast.error(error.response?.data?.message || 'ERROR')
         }
       },
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false })
         delete api.defaults.headers.common['Authorization']
+      },
+      getProfile: async () => {
+        try {
+          const response = await api.get('/auth/profile')
+          const { user } = response.data.data
+
+          set({ userProfile: user })
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'ERROR')
+        }
       },
       updateProfile: async (userData: any) => {
         try {
@@ -46,9 +58,7 @@ export const useAuthStore = create<AuthState>()(
           const profileResponse = await api.get('/auth/profile')
           set({ user: profileResponse.data.data.user })
         } catch (error: any) {
-          throw new Error(
-            error.response?.data?.error || 'Profile update failed'
-          )
+          toast.error(error.response?.data?.message || 'ERROR')
         }
       },
     }),
@@ -76,9 +86,33 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ users: response.data.data.users, loading: false })
     } catch (error: any) {
       set({
-        error: error.response?.data?.error || 'Failed to fetch users',
+        error: error.response?.data?.message || 'Failed to fetch users',
         loading: false,
       })
+    }
+  },
+  getUserById: async (id: string) => {
+    try {
+      const response = await api.get(`/auth/${id}`)
+      return response.data.data.user
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'ERROR')
+    }
+  },
+  updateUserPermission: async (
+    roleName: string,
+    permission: string,
+    type: 'add' | 'remove'
+  ) => {
+    try {
+      if (type === 'add') {
+        await api.post(`/role/${roleName}/permissions/${permission}`)
+      } else {
+        await api.delete(`/role/${roleName}/permissions/${permission}`)
+      }
+      await get().fetchRoles()
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'ERROR')
     }
   },
   fetchRoles: async () => {
@@ -88,7 +122,19 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ roles: response.data.data.roles, loading: false })
     } catch (error: any) {
       set({
-        error: error.response?.data?.error || 'Failed to fetch roles',
+        error: error.response?.data?.message || 'Failed to fetch roles',
+        loading: false,
+      })
+    }
+  },
+  createNewRole: async (payload: { name: string }) => {
+    set({ loading: true })
+    try {
+      const response = await api.post('/role', payload)
+      set({ roles: response.data.data.roles, loading: false })
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to fetch roles',
         loading: false,
       })
     }
@@ -100,7 +146,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ permissions: response.data.data.permissions, loading: false })
     } catch (error: any) {
       set({
-        error: error.response?.data?.error || 'Failed to fetch permissions',
+        error: error.response?.data?.message || 'Failed to fetch permissions',
         loading: false,
       })
     }
@@ -110,15 +156,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       await api.post('/auth/register', userData)
       await get().fetchUsers()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to create user')
+      toast.error(error.response?.data?.message || 'ERROR')
     }
   },
   updateUser: async (id: string, userData: any) => {
     try {
-      await api.put(`/users/${id}/admin`, userData)
+      await api.put(`/auth/${id}/admin`, userData)
       await get().fetchUsers()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to update user')
+      toast.error(error.response?.data?.message || 'Failed to update user')
+      throw new Error(error.response?.data?.message || 'Failed to update user')
     }
   },
   deleteUser: async (id: string) => {
@@ -126,7 +173,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       await api.delete(`/auth/${id}`)
       await get().fetchUsers()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to delete user')
+      toast.error(error.response?.data?.message || 'Failed to delete user')
+      throw new Error(error.response?.data?.message || 'Failed to delete user')
     }
   },
   createRole: async (roleData: any) => {
@@ -134,7 +182,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       await api.post('/roles', roleData)
       await get().fetchRoles()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to create role')
+      toast.error(error.response?.data?.message || 'ERROR')
     }
   },
   updateRole: async (name: string, roleData: any) => {
@@ -142,15 +190,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       await api.put(`/roles/${name}`, roleData)
       await get().fetchRoles()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to update role')
+      toast.error(error.response?.data?.message || 'ERROR')
     }
   },
   deleteRole: async (name: string) => {
     try {
-      await api.delete(`/roles/${name}`)
+      await api.delete(`/role/${name}`)
       await get().fetchRoles()
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Failed to delete role')
+      toast.error(error.response?.data?.message || 'ERROR')
     }
   },
   clearError: () => set({ error: null }),

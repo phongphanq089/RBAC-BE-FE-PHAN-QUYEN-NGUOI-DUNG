@@ -3,13 +3,13 @@ import { ProtectedRoute } from './components/PrivateRoute'
 
 import Dashboard from './pages/Dashboard'
 
-import { Roles } from './pages/Roles'
-import Permissions from './pages/Permissions'
 import Profile from './pages/Profile'
 import { LoginForm } from './pages/Login'
 import { Layout } from './layout/LayoutDefault'
 import { Register } from './pages/Register'
-import { Users } from './pages/Users'
+
+import { RequirePermission } from './layout/RequirePermission'
+import { protectedRoutes } from './config/routeConfig'
 
 function App() {
   return (
@@ -27,9 +27,18 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path='dashboard' element={<Dashboard />} />
-          <Route path='users' element={<Users />} />
-          <Route path='roles' element={<Roles />} />
-          <Route path='permissions' element={<Permissions />} />
+
+          {protectedRoutes.map(({ path, element, permission }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <RequirePermission permission={permission}>
+                  {element}
+                </RequirePermission>
+              }
+            />
+          ))}
           <Route path='profile' element={<Profile />} />
         </Route>
       </Routes>

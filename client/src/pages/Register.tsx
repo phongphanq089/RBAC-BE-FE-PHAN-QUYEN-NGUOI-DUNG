@@ -8,6 +8,7 @@ export const Register = () => {
     username: '',
     email: '',
     password: '',
+    role: 'client',
   })
   const [error, setError] = useState('')
   const { register } = useAuthStore()

@@ -55,6 +55,7 @@ export const loginUserController = async (
 ) => {
   const { email, password } = request.body
   const user = await User.findByEmail(email)
+
   if (!user) {
     throw new AppError('User Invalid credentials', 401)
   }

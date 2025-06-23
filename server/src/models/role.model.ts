@@ -126,6 +126,7 @@ export class Role {
     roleName: string,
     permissionName: string
   ): Promise<number> {
+    console.log(roleName, '==========>')
     const role = await this.findByName(roleName)
     if (!role) {
       throw new AppError('Role not found', 404)

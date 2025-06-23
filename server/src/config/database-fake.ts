@@ -2,6 +2,8 @@ import Datastore from 'nedb-promises'
 import path from 'path'
 import fs from 'fs'
 import { IPermission, IRole, IUser, IUserSession } from '@/types'
+import { config } from './envConfig'
+import bcrypt from 'bcrypt'
 
 class Database {
   public users: Datastore<IUser>
@@ -64,6 +66,7 @@ class Database {
     try {
       await this.initializePermissions()
       await this.initializeRoles()
+      await this.initializeSuperAdminUser()
       await this.cleanupExpiredSessions()
       console.log('✅ Database initialized successfully')
     } catch (error) {
@@ -291,6 +294,37 @@ class Database {
     } catch (error) {
       console.error('Error cleaning up expired sessions:', error)
     }
+  }
+
+  // Tự tạo tài khoản mặt định,  role mặc định được tạo sẵn trong code hoặc quá trình khởi tạo hệ thống (seeding), đối với tài khoản có quyền cao nhất luôn luôn sẽ được tạo đầu tiên.
+  private async initializeSuperAdminUser(): Promise<void> {
+    const existing = await this.users.findOne({
+      email: 'super_admin@gmail.com',
+    })
+    if (existing) return
+
+    const password = 'admin123'
+    const saltRounds = parseInt(config.BCRYPT_ROUNDS || '12')
+    const hashedPassword = await bcrypt.hash(password, saltRounds)
+
+    const superAdminUser: Omit<IUser, '_id' | 'createdAt' | 'updatedAt'> = {
+      username: 'super_admin',
+      email: 'super_admin@gmail.com',
+      password: hashedPassword,
+      role: 'super_admin',
+      isActive: true,
+      metadata: {
+        note: 'Default super admin created on init',
+      },
+    }
+
+    await this.users.insert({
+      ...superAdminUser,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+
+    console.log('✅ Super admin user created')
   }
 }
 

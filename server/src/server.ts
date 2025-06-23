@@ -10,6 +10,8 @@ import { authenticate } from './middleware/authMiddleware'
 import fastify from 'fastify'
 import { roleRoutes } from './routes/role.route'
 import { permissionRoutes } from './routes/permisson.route'
+import { User } from './models/user.model'
+import { Role } from './models/role.model'
 
 const app = fastify({
   logger: config.isDevelopment,

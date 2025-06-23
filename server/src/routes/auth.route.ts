@@ -14,6 +14,7 @@ import {
 import {
   authenticate,
   authorize,
+  forbidRoleChange,
   forbidSelfDelete,
   requireOwnership,
   requireOwnershipOrRole,
@@ -81,7 +82,11 @@ export const authRoutes = (server: FastifyInstance) => {
   server.put(
     '/:id/admin',
     {
-      preHandler: [authenticate, authorize(['user:update:all'])],
+      preHandler: [
+        authenticate,
+        authorize(['user:update:all']),
+        forbidRoleChange,
+      ],
     },
     updateUserByAdminController
   )
@@ -93,6 +98,7 @@ export const authRoutes = (server: FastifyInstance) => {
         authenticate,
         authorize(['user:delete:all']),
         forbidSelfDelete,
+        forbidRoleChange,
       ],
     },
     deleteSoftUserByAdminController
